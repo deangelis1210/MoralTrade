@@ -6,13 +6,13 @@
 |   Info      |        Description     |
 | ----------- | ---------------------- |
 | TeamID      |        Team-020        |
-| TeamName    |         MVP Fantasy         |
-| Captain     |       Timothy Li     |
-| Captain     |  ttli3@illinois.edu  |
+| TeamName    |      MVP Fantasy       |
+| Captain     |       Timothy Li       |
+| Captain     |  ttli3@illinois.edu    |
 | Member1     |        Kevin Pei       |
 | Member1     |   kevin2@illinois.edu  |
-| Member2     |                        |
-| Member2     |                        |
+| Member2     |     Misho Metodiev     |
+| Member2     |  michail2@illinois.edu |
 | Member3     |                        |
 | Member3     |                        |
 
