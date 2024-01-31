@@ -9,8 +9,8 @@
 | TeamName    |      MVP Fantasy       |
 | Captain     |       Timothy Li       |
 | Captain     |  ttli3@illinois.edu    |
-| Member1     |        Kevin Pei       |
-| Member1     |   kevin2@illinois.edu  |
+| Member1     |        Vinay Siva      |
+| Member1     |   vinay4@illinois.edu  |
 | Member2     |     Misho Metodiev     |
 | Member2     |  michail2@illinois.edu |
 | Member3     |                        |
