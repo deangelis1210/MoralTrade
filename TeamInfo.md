@@ -13,8 +13,8 @@
 | Member1     |   vinay4@illinois.edu  |
 | Member2     |     Misho Metodiev     |
 | Member2     |  michail2@illinois.edu |
-| Member3     |                        |
-| Member3     |                        |
+| Member3     |   Charlie DeAngelis    |
+| Member3     |   cjd8@illinois.edu    |
 
 ## Project Information
 
