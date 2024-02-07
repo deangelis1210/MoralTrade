@@ -20,10 +20,10 @@
 
 |   Info      |        Description     |
 | ----------- | ---------------------- |
-|  Title      |       ProjectTitle     |
+|  Title      |        MoralTrade      |
 | System URL  |      link_to_system    |
 | Video Link  |      link_to_video     |
 
 ## Project Summary
 
-This is a summary of the project!
+MoralTrade is an application that can display the most traded stocks and their price changes over time, but with the necessary information about the companies' moral standings. We will show various ESG factors that play into corporate responsibility. This way, users will be able to see when they are not only investing in a company's profits, but also their potential ethical drawbacks.
