@@ -1,6 +1,12 @@
 from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
-app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
+app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mvpfantasy:balls@34.31.136.100/mvpesg'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 @app.route('/')
 def index():
@@ -10,6 +16,14 @@ def index():
 def get_data():
     data = {'message': 'Hello from Flask!'}
     return jsonify(data)
+
+@app.route('/companies', methods=['GET'])
+def get_companies():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text("SELECT c.name FROM Company c LIMIT 10;"))
+            companies = [row[0] for row in result]
+            return jsonify({'message': companies})
 
 if __name__ == '__main__':
     app.run(debug=True)
