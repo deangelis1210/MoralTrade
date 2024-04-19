@@ -6,7 +6,7 @@ function App() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch('/companies')
+    fetch('/aboveAverageESGcompanies')
       .then(response => response.json())
       .then(data => setMessage(data.message))
       .catch(error => console.error('Error:', error));
@@ -14,7 +14,7 @@ function App() {
 
   return (
     <div>
-      <h1>I love balls</h1>
+      <h1>Companies with above-average total ESG scores</h1>
       <p>{message}</p>
     </div>
   );
