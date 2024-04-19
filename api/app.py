@@ -23,14 +23,15 @@ def get_companies():
         with db.engine.connect() as conn:
             result = conn.execute(text('''
                                         SELECT c.name, es.total
-                                        FROM Company c JOIN ESG_Score es ON c.ticker = es.ticker
+                                        FROM Company c
+                                        JOIN ESG_Score es ON c.ticker = es.ticker
                                         WHERE es.total > (
                                             SELECT AVG(total) FROM ESG_Score
                                         )
-                                        ORDER BY es.total DESC, c.name;
+                                        ORDER BY es.total DESC, c.name
                                        '''))
-            companies = [row[0] for row in result]
-            print(companies)
+            companies = [{'name': row[0], 'esg_score': row[1]} for row in result]
+            # print(companies)
             return jsonify({'message': companies})
 
 if __name__ == '__main__':
