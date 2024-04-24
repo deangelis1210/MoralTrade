@@ -35,7 +35,7 @@ def get_companies():
     with app.app_context():
         with db.engine.connect() as conn:
             result = conn.execute(text('''
-                                        SELECT c.name, es.total
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance
                                         FROM Company c
                                         JOIN ESG_Score es ON c.ticker = es.ticker
                                         WHERE es.total > (
@@ -43,8 +43,7 @@ def get_companies():
                                         )
                                         ORDER BY es.total DESC, c.name
                                        '''))
-            companies = [{'name': row[0], 'esg_score': row[1]} for row in result]
-            # print(companies)
+            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4]} for row in result]
             return jsonify({'message': companies})
 
 if __name__ == '__main__':
