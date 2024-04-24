@@ -4,11 +4,13 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { Navbar, Container, Nav, Card, Alert } from 'react-bootstrap';
 
 function App() {
+  const [allCompanies, setAllCompanies] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Fetch all companies
     fetch('/allCompanies')
       .then(response => {
         if (!response.ok) {
@@ -17,6 +19,7 @@ function App() {
         return response.json();
       })
       .then(data => {
+        setAllCompanies(data.companies.map(company => ({ ...company, expanded: false })));
         setCompanies(data.companies.map(company => ({ ...company, expanded: false })));
         setLoading(false);
       })
@@ -25,6 +28,29 @@ function App() {
         setLoading(false);
       });
   }, []);
+
+  const loadAboveAverageESGCompanies = () => {
+    // Fetch above-average ESG companies
+    fetch('/aboveAverageESGcompanies')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCompanies(data.message.map(company => ({ ...company, expanded: false })));
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
+  const loadAllCompanies = () => {
+    setCompanies(allCompanies);
+  };
 
   if (loading) {
     return (
@@ -60,7 +86,9 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#all-companies">All Companies</Nav.Link>
+              <Nav.Link href="#all-companies" onClick={loadAllCompanies}>All Companies</Nav.Link>
+              {/* Link to load above-average ESG companies */}
+              <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
