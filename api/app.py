@@ -45,6 +45,17 @@ def get_companies():
                                        '''))
             companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4]} for row in result]
             return jsonify({'message': companies})
+        
+@app.route('/usersInfo', methods=['GET'])
+def get_users_info():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT DISTINCT username, password, email, first_name, last_name
+                                        FROM User
+                                       '''))
+            users_info = [{'username': row[0], 'password': row[1], 'email': row[2], 'first_name': row[3], 'last_name': row[4]} for row in result]
+            return jsonify({'message': users_info})
 
 if __name__ == '__main__':
     app.run(debug=True)
