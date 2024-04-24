@@ -17,6 +17,19 @@ def get_data():
     data = {'message': 'Hello from Flask!'}
     return jsonify(data)
 
+@app.route('/allCompanies', methods=['GET'])
+def get_all_companies():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT c.name, c.ticker, e.environment, e.social, e.governance
+                                        FROM Company c JOIN ESG_Score e ON c.ticker = e.ticker
+                                        ORDER BY name
+                                       '''))
+            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4]} for row in result]
+            return jsonify({'companies': companies})
+
+
 @app.route('/aboveAverageESGcompanies', methods=['GET'])
 def get_companies():
     with app.app_context():
