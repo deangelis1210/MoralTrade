@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { Navbar, Container, Nav, Card, Alert } from 'react-bootstrap';
+import { Navbar, Container, Nav, Card, Alert, Form } from 'react-bootstrap';
 
 function IndexPage() {
   const [allCompanies, setAllCompanies] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isTopPerforming, setIsTopPerforming] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     // Fetch all companies
@@ -40,6 +42,7 @@ function IndexPage() {
       })
       .then(data => {
         setCompanies(data.message.map(company => ({ ...company, expanded: false })));
+        setIsTopPerforming(true);
         setLoading(false);
       })
       .catch(error => {
@@ -50,6 +53,20 @@ function IndexPage() {
 
   const loadAllCompanies = () => {
     setCompanies(allCompanies);
+    setIsTopPerforming(false);
+  };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      setCompanies(allCompanies);
+    } else {
+      const filteredCompanies = allCompanies.filter(company =>
+        company.ticker.toLowerCase().includes(event.target.value.toLowerCase()) ||
+        company.name.toLowerCase().includes(event.target.value.toLowerCase())
+      );
+      setCompanies(filteredCompanies);
+    }
   };
 
   if (loading) {
@@ -90,13 +107,21 @@ function IndexPage() {
               {/* Link to load above-average ESG companies */}
               <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
             </Nav>
+            <Form className="d-flex">
+              <Form.Control
+                type="search"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </Form>
           </Navbar.Collapse>
         </Container>
       </Navbar>
       <Container className="py-4">
         <main>
           <section id="all-companies" className="mb-4">
-            <h2 className="section-title">All Companies</h2>
+            <h2 className="section-title">{isTopPerforming ? 'Top Performing ESG' : 'All Companies'}</h2>
             <div className="row row-cols-1 row-cols-md-3 g-4">
               {companies.map((company, index) => (
                 <div key={index} className="col">
@@ -131,4 +156,4 @@ function IndexPage() {
   );
 }
 
-export default IndexPage
+export default IndexPage;
