@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
@@ -56,6 +56,23 @@ def get_users_info():
                                        '''))
             users_info = [{'username': row[0], 'password': row[1], 'email': row[2], 'first_name': row[3], 'last_name': row[4]} for row in result]
             return jsonify({'message': users_info})
+        
+@app.route('/insertInfo', methods=['POST'])
+def insert_users_info():
+    username = request.args.get('username')
+    password = request.args.get('password')
+    email = request.args.get('email')
+    first_name = request.args.get('first_name')
+    last_name = request.args.get('last_name')
+
+    with app.app_context():
+        with db.engine.connect() as conn:
+            conn.execute(text(f'''
+                                INSERT INTO User(username, password, email, first_name, last_name)
+                                VALUES ('{username}', '{password}', '{email}', '{first_name}', '{last_name}')
+                               '''))
+            conn.commit()       
+            return jsonify({'message': 'User information inserted successfully'})
 
 if __name__ == '__main__':
     app.run(debug=True)
