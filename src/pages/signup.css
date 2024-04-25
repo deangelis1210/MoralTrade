@@ -1,108 +1,78 @@
-/* Colors */
-:root {
-    --primary-color: #6C5CE7;
-    --success-color: #27AE60;
-    --gray-light: #F5F6FA;
-    --gray-medium: #D1D8E0;
-    --gray-dark: #4B4E6D;
-    --error-color: #EB5757;
-  }
-  
-  /* Reset */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Typography */
-  body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--gray-light);
-    color: var(--gray-dark);
-    line-height: 1.6;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: bold;
-  }
-  
-  /* Layout */
-  .login-container {
-    max-width: 400px; /* Adjust max-width as needed */
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Header */
-  header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .title {
-    font-size: 32px;
-    color: var(--primary-color);
-  }
-  
-  /* Main */
-  main {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Form */
-  .login-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    font-weight: bold;
-  }
-  
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--gray-medium);
-    border-radius: 4px;
-    transition: border-color 0.3s ease-in-out;
-  }
-  
-  input[type="text"]:focus,
-  input[type="password"]:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-  
-  button {
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-  }
-  
-  button:hover {
-    background-color: #5743E9;
-  }
-  
-  /* Footer */
-  .footer {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .footer p {
-    line-height: 1.5;
-  }
+/* signup.css */
+.signup-container {
+  max-width: 400px; /* Adjust max-width as needed */
+  margin: auto;
+  margin-top: 80px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.signup-container header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.signup-container .title {
+  font-size: 32px;
+  color: var(--primary-color);
+}
+
+.signup-container main {
+  display: flex;
+  flex-direction: column;
+}
+
+.signup-container .signup-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.signup-container .form-group {
+  margin-bottom: 20px;
+}
+
+.signup-container label {
+  font-weight: bold;
+}
+
+.signup-container input[type="text"],
+.signup-container input[type="password"],
+.signup-container input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--gray-medium);
+  border-radius: 4px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.signup-container input[type="text"]:focus,
+.signup-container input[type="password"]:focus,
+.signup-container input[type="email"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.signup-container button {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.signup-container button:hover {
+  background-color: #5743E9;
+}
+
+.signup-container .footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.signup-container .footer p {
+  line-height: 1.5;
+}
