@@ -4,6 +4,7 @@ import './login.css'; // Import the login styles
 
 function LoginPage() {
   const history = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -29,9 +30,9 @@ function LoginPage() {
             const data = await response.json();
             console.log('User logged in successfully!');
             console.log('User data:', data);
-            history('/');
+            history('/home');
         } else {
-            console.error('Login failed');
+            setErrorMessage('Invalid username or password');
         }
     } catch (error) {
         console.error('Error during login:', error);
@@ -54,7 +55,7 @@ function LoginPage() {
             <input type="password" id="password" name="password" placeholder="Enter your password" onChange={handleChange}/>
           </div>
           <button type="submit" className="btn btn-primary">Login</button>
-          <br/>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <div className='signup-prompt-container'>Don't have an account? <Link to = '/signup'>Sign Up</Link></div>
         </form>
       </main>
