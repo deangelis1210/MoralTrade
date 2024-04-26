@@ -4,14 +4,15 @@ import './signup.css'; // Import the signup styles
 
 function SignupPage() {
   const history = useNavigate();
-
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    confirmPassword: '', // New state for confirm password
     email: '',
     first_name: '',
     last_name: ''
   });
+  const [passwordMismatch, setPasswordMismatch] = useState(false); // State to track password mismatch
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,6 +21,10 @@ function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) { // Check if passwords match
+      setPasswordMismatch(true);
+      return;
+    }
     try {
       const queryParams = new URLSearchParams(formData).toString();
       const response = await fetch(`/insertInfo?${queryParams}`, {
@@ -30,7 +35,7 @@ function SignupPage() {
       });
       if (response.ok) {
         console.log('User signed up successfully!');
-        history('/');
+        history('/home');
       } else {
         console.error('Signup failed');
       }
@@ -55,6 +60,10 @@ function SignupPage() {
             <input type="password" id="password" name="password" placeholder="Enter your password" onChange={handleChange} />
           </div>
           <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" onChange={handleChange} />
+          </div>
+          <div className="form-group">
             <label htmlFor="email">Email:</label>
             <input type="email" id="email" name="email" placeholder="Enter your email" onChange={handleChange} />
           </div>
@@ -67,14 +76,14 @@ function SignupPage() {
             <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" onChange={handleChange} />
           </div>
           <button type="submit" className="btn btn-primary">Sign Up</button>
-          <br/>
-          <div className='signup-prompt-container'>Already have an account? <Link to = '/login'>Log In</Link></div>
+          {passwordMismatch && <div className="error-message">Passwords do not match</div>}
+          <div className='signup-prompt-container'>Already have an account? <Link to='/'>Log In</Link></div>
         </form>
       </main>
       <footer className="footer">
         <p>&copy; 2024 MVP Stock Trading. All rights reserved.</p>
       </footer>
-  </div>
+    </div>
   );
 }
 
