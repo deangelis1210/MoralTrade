@@ -74,5 +74,19 @@ def insert_users_info():
             conn.commit()       
             return jsonify({'message': 'User information inserted successfully'})
 
+@app.route('/loginAttempt', methods=['GET'])
+def login_attempt():
+    username = request.args.get('username')
+    password = request.args.get('password')
+
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('SELECT * FROM User WHERE username = :username AND password = :password'), {'username': username, 'password': password}).fetchone()
+            if result:
+                user_data = {'username': result[0], 'password': result[1], 'email': result[2], 'first_name': result[3], 'last_name': result[4]}
+                return jsonify(user_data)
+            else:
+                return jsonify({'message': 'Invalid username or password'}), 401
+
 if __name__ == '__main__':
     app.run(debug=True)
