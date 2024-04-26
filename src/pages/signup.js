@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './signup.css'; // Import the signup styles
 
 function SignupPage() {
+  const history = useNavigate();
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -27,6 +30,7 @@ function SignupPage() {
       });
       if (response.ok) {
         console.log('User signed up successfully!');
+        history('/');
       } else {
         console.error('Signup failed');
       }
@@ -63,6 +67,8 @@ function SignupPage() {
             <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" onChange={handleChange} />
           </div>
           <button type="submit" className="btn btn-primary">Sign Up</button>
+          <br/>
+          <div className='signup-prompt-container'>Already have an account? <Link to = '/login'>Log In</Link></div>
         </form>
       </main>
       <footer className="footer">

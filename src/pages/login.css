@@ -97,6 +97,10 @@
     background-color: #5743E9;
   }
   
+  .signup-prompt-container {
+    text-align: center;
+  }
+
   /* Footer */
   .footer {
     margin-top: 20px;

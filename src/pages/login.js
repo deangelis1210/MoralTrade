@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './login.css'; // Import the login styles
 
 function LoginPage() {
@@ -54,6 +54,8 @@ function LoginPage() {
             <input type="password" id="password" name="password" placeholder="Enter your password" onChange={handleChange}/>
           </div>
           <button type="submit" className="btn btn-primary">Login</button>
+          <br/>
+          <div className='signup-prompt-container'>Don't have an account? <Link to = '/signup'>Sign Up</Link></div>
         </form>
       </main>
       <footer className="footer">
