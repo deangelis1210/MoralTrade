@@ -120,15 +120,30 @@ function IndexPage() {
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
-      setCompanies(allCompanies);
+      // If the search term is empty, display all companies based on the current section
+      switch (sectionTitle) {
+        case 'Top Performing ESG':
+          loadAboveAverageESGCompanies();
+          break;
+        case 'Health and Oil Companies':
+          loadHealthAndOilCompanies();
+          break;
+        case 'Top Sector Performers':
+          loadTopSectorCompanies();
+          break;
+        default:
+          loadAllCompanies(event);
+      }
     } else {
-      const filteredCompanies = allCompanies.filter(company =>
+      // Filter the currently displayed companies based on the search term
+      const filteredCompanies = companies.filter(company =>
         company.ticker.toLowerCase().includes(event.target.value.toLowerCase()) ||
         company.name.toLowerCase().includes(event.target.value.toLowerCase())
       );
       setCompanies(filteredCompanies);
     }
   };
+  
 
   const calculateESGColor = (score) => {
     // Assuming score ranges from 0 to 100
