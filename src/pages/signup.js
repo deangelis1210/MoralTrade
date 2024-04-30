@@ -35,7 +35,7 @@ function SignupPage() {
       });
       if (response.ok) {
         console.log('User signed up successfully!');
-        history('/home');
+        history('/');
       } else {
         console.error('Signup failed');
         setErrorMessage('Username already exists');

@@ -31,6 +31,7 @@ function LoginPage() {
             console.log('User logged in successfully!');
             console.log('User data:', data);
             history('/home');
+            localStorage.setItem('currentUser', JSON.stringify(data));
         } else {
             setErrorMessage('Invalid username or password');
         }
