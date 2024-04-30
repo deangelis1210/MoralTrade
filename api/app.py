@@ -73,7 +73,24 @@ def get_top_sectors():
                                        '''))
             companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5], 'sector': row[6]} for row in result]
             return jsonify({'message': companies})
-        
+
+@app.route('/sectorMarketCaps', methods=['GET'])
+def get_sector_market_caps():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT sector, AVG(max_market_cap)
+                                        FROM (
+                                            SELECT sector, MAX(market_cap) AS max_market_cap
+                                            FROM Company c JOIN Stock s ON c.ticker = s.ticker
+                                            GROUP BY sector
+                                        ) AS max_caps
+                                        GROUP BY sector
+                                        ORDER BY sector;
+                                       '''))
+            companies = [{'sector': row[0], 'market_cap': row[1]} for row in result]
+            return jsonify({'message': companies})
+
 @app.route('/usersInfo', methods=['GET'])
 def get_users_info():
     with app.app_context():

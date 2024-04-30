@@ -111,6 +111,26 @@ function IndexPage() {
       });
   };
 
+  const loadSectorMarketCaps = () => {
+    // Fetch above-average ESG companies
+    fetch('/sectorMarketCaps')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCompanies(data.message);
+        setSectionTitle('Top Market Caps in Sectors');
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
   const loadAllCompanies = (event) => {
     event.preventDefault(); // Prevent default behavior of link
     setCompanies(allCompanies);
@@ -174,6 +194,7 @@ function IndexPage() {
               <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
               <Nav.Link onClick={loadHealthAndOilCompanies}>Health and Oil Companies</Nav.Link>
               <Nav.Link onClick={loadTopSectorCompanies}>Top Sector Performers</Nav.Link>
+              <Nav.Link onClick={loadSectorMarketCaps}>Top Market Caps in Sectors</Nav.Link>
             </Nav>
           
             <div className="user-actions d-flex align-items-center">
