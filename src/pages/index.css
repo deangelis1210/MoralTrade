@@ -63,6 +63,12 @@ main {
   margin-bottom: 20px;
 }
 
+/* User Name */
+.user-name {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
 /* Update font for All Companies title */
 .section-title.all-companies {
   font-family: 'Roboto', sans-serif;
@@ -207,8 +213,13 @@ main {
 
 .search-icon {
   position: absolute;
-  right: 10px; /* Adjust as needed */
+  right: 10px;
   color: #aaa;
+}
+
+.sign-out-button {
+  margin-top: 18px;
+  margin-left: 10px;
 }
 
 
@@ -267,6 +278,6 @@ main {
 
 .search-icon {
   position: absolute;
-  right: 10px; /* Adjust as needed */
+  right: 10px;
   color: #aaa;
 }

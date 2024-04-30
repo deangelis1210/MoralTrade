@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { Navbar, Container, Nav, Card, Alert, Form } from 'react-bootstrap';
+import { Navbar, Container, Nav, Card, Alert, Form, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 function IndexPage() {
+  const navigate = useNavigate();
   const [allCompanies, setAllCompanies] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isTopPerforming, setIsTopPerforming] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     // Fetch all companies
@@ -32,6 +35,21 @@ function IndexPage() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    // Retrieve current user from local storage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    // Clear current user data from state and local storage
+    setCurrentUser(null);
+    localStorage.removeItem('currentUser');
+    navigate('/');
+  };
 
   const loadAboveAverageESGCompanies = () => {
     // Fetch above-average ESG companies
@@ -116,18 +134,30 @@ function IndexPage() {
               {/* Link to load above-average ESG companies */}
               <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
             </Nav>
-            <Form className="d-flex search-container">
-              <Form.Control
-                type="search"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={handleSearch}
-                className="search-bar"
-              />
-              <span className="search-icon">
-                <FontAwesomeIcon icon={faSearch} />
-              </span>
-            </Form>
+          
+            <div className="user-actions d-flex align-items-center">
+              {currentUser && (
+                <div className="user-info">
+                  <span className="user-name">Hello, {currentUser.first_name}</span>
+                </div>
+              )}
+              <Form className="d-flex search-container">
+                <Form.Control
+                  type="search"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="search-bar"
+                />
+                <span className="search-icon">
+                  <FontAwesomeIcon icon={faSearch} />
+                </span>
+              </Form>
+              
+              <Button className = "sign-out-button" variant="outline-primary" onClick={handleSignOut}>
+                <FontAwesomeIcon icon={faSignOutAlt} />
+              </Button>
+            </div>
           </Navbar.Collapse>
         </Container>
       </Navbar>
