@@ -12,9 +12,9 @@ function IndexPage() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isTopPerforming, setIsTopPerforming] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [sectionTitle, setSectionTitle] = useState('All Companies');
 
   useEffect(() => {
     // Fetch all companies
@@ -62,7 +62,47 @@ function IndexPage() {
       })
       .then(data => {
         setCompanies(data.message);
-        setIsTopPerforming(true);
+        setSectionTitle('Top Performing ESG');
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
+  const loadHealthAndOilCompanies = () => {
+    // Fetch above-average ESG companies
+    fetch('/healthAndOilCompanies')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCompanies(data.message);
+        setSectionTitle('Health and Oil Companies');
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
+  const loadTopSectorCompanies = () => {
+    // Fetch above-average ESG companies
+    fetch('/topSectorPerformers')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCompanies(data.message);
+        setSectionTitle('Top Sector Performers');
         setLoading(false);
       })
       .catch(error => {
@@ -74,7 +114,7 @@ function IndexPage() {
   const loadAllCompanies = (event) => {
     event.preventDefault(); // Prevent default behavior of link
     setCompanies(allCompanies);
-    setIsTopPerforming(false);
+    setSectionTitle('All Companies');
   };
 
   const handleSearch = (event) => {
@@ -131,8 +171,9 @@ function IndexPage() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link href="#all-companies" onClick={(event) => loadAllCompanies(event)}>All Companies</Nav.Link>
-              {/* Link to load above-average ESG companies */}
               <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
+              <Nav.Link onClick={loadHealthAndOilCompanies}>Health and Oil Companies</Nav.Link>
+              <Nav.Link onClick={loadTopSectorCompanies}>Top Sector Performers</Nav.Link>
             </Nav>
           
             <div className="user-actions d-flex align-items-center">
@@ -164,7 +205,7 @@ function IndexPage() {
       <Container className="py-4">
         <main>
           <section id="all-companies" className="mb-4">
-            <h2 className="section-title">{isTopPerforming ? 'Top Performing ESG' : 'All Companies'}</h2>
+            <h2 className="section-title">{sectionTitle}</h2>
             {/* Data Rows */}
             <div className="row row-cols-1 g-4">
               {companies.map((company, index) => (
@@ -179,7 +220,9 @@ function IndexPage() {
                           <Card.Text className="company-name">{company.name}</Card.Text>
                         </div>
                         {/* Empty space */}
-                        <div className="col-6"></div>
+                        <div className="col-6">
+                          <Card.Text className="ticker">{company.sector}</Card.Text>
+                        </div>
                         {/* Subscores */}
                         <div className="esg-subscore">
                           <Card.Text style={{ color: calculateESGColor(company.environment) }}>E: {company.environment}</Card.Text>

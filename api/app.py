@@ -8,42 +8,70 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mvpfantasy:balls@34.31.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
 
-@app.route('/api/data')
-def get_data():
-    data = {'message': 'Hello from Flask!'}
-    return jsonify(data)
 
 @app.route('/allCompanies', methods=['GET'])
 def get_all_companies():
-    with app.app_context():
-        with db.engine.connect() as conn:
-            result = conn.execute(text('''
-                                        SELECT c.name, c.ticker, e.environment, e.social, e.governance, e.total
-                                        FROM Company c JOIN ESG_Score e ON c.ticker = e.ticker
-                                        ORDER BY name
-                                       '''))
-            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4], 'esg': row[5]} for row in result]
-            return jsonify({'companies': companies})
-
+    try:
+        with app.app_context():
+            with db.engine.connect() as conn:
+                result = conn.execute(text('CALL get_companies_data(:data_type)'), {'data_type': 'all_companies'})
+                companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4], 'esg': row[5]} for row in result]
+                return jsonify({'companies': companies}), 200
+    except Exception as e:
+        app.logger.error('Error fetching all companies: %s', str(e))
+        return jsonify({'error': 'An error occurred while fetching all companies'}), 500
 
 @app.route('/aboveAverageESGcompanies', methods=['GET'])
-def get_companies():
+def get_companies_above_average_esg():
+    try:
+        with app.app_context():
+            with db.engine.connect() as conn:
+                result = conn.execute(text('CALL get_companies_data(:data_type)'), {'data_type': 'above_average_esg'})
+                companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5]} for row in result]
+                return jsonify({'companies': companies}), 200
+    except Exception as e:
+        app.logger.error('Error fetching above-average ESG companies: %s', str(e))
+        return jsonify({'error': 'An error occurred while fetching above-average ESG companies'}), 500
+
+@app.route('/healthAndOilCompanies', methods=['GET'])
+def get_health_and_oil_companies():
     with app.app_context():
         with db.engine.connect() as conn:
             result = conn.execute(text('''
-                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance
-                                        FROM Company c
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c 
                                         JOIN ESG_Score es ON c.ticker = es.ticker
-                                        WHERE es.total > (
-                                            SELECT AVG(total) FROM ESG_Score
-                                        )
-                                        ORDER BY es.total DESC, c.name
+                                        WHERE c.sector = 'Oil & Gas Producers'
+                                        UNION
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c 
+                                        JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE c.sector = 'Healthcare';
+
                                        '''))
-            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5]} for row in result]
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5], 'sector': row[6]} for row in result]
+            return jsonify({'message': companies})
+
+@app.route('/topSectorPerformers', methods=['GET'])
+def get_top_sectors():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE es.total = (
+                                            SELECT MAX(es2.total)
+                                            FROM ESG_Score es2 JOIN Company c2 ON c2.ticker = es2.ticker
+                                            WHERE c2.sector = c.sector
+                                        )
+                                        ORDER BY c.sector;
+                                       '''))
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5], 'sector': row[6]} for row in result]
             return jsonify({'message': companies})
         
 @app.route('/usersInfo', methods=['GET'])
@@ -91,6 +119,9 @@ def login_attempt():
                 return jsonify(user_data)
             else:
                 return jsonify({'message': 'Invalid username or password'}), 401
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
