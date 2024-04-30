@@ -67,12 +67,16 @@ def insert_users_info():
 
     with app.app_context():
         with db.engine.connect() as conn:
-            conn.execute(text(f'''
-                                INSERT INTO User(username, password, email, first_name, last_name)
-                                VALUES ('{username}', '{password}', '{email}', '{first_name}', '{last_name}')
-                               '''))
-            conn.commit()       
-            return jsonify({'message': 'User information inserted successfully'})
+            result = conn.execute(text('SELECT * FROM User WHERE username = :username'), {'username': username}).fetchone()
+            if result:
+                return jsonify({'message': 'Username already exists'}), 401
+            else:
+                conn.execute(text(f'''
+                                    INSERT INTO User(username, password, email, first_name, last_name)
+                                    VALUES ('{username}', '{password}', '{email}', '{first_name}', '{last_name}')
+                                '''))
+                conn.commit()       
+                return jsonify({'message': 'User information inserted successfully'})
 
 @app.route('/loginAttempt', methods=['GET'])
 def login_attempt():
