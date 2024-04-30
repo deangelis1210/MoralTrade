@@ -22,11 +22,11 @@ def get_all_companies():
     with app.app_context():
         with db.engine.connect() as conn:
             result = conn.execute(text('''
-                                        SELECT c.name, c.ticker, e.environment, e.social, e.governance
+                                        SELECT c.name, c.ticker, e.environment, e.social, e.governance, e.total
                                         FROM Company c JOIN ESG_Score e ON c.ticker = e.ticker
                                         ORDER BY name
                                        '''))
-            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4]} for row in result]
+            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4], 'esg': row[5]} for row in result]
             return jsonify({'companies': companies})
 
 
@@ -43,7 +43,7 @@ def get_companies():
                                         )
                                         ORDER BY es.total DESC, c.name
                                        '''))
-            companies = [{'name': row[0], 'ticker': row[1], 'environment': row[2], 'social': row[3], 'governance': row[4]} for row in result]
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5]} for row in result]
             return jsonify({'message': companies})
         
 @app.route('/usersInfo', methods=['GET'])
