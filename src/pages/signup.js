@@ -12,7 +12,7 @@ function SignupPage() {
     first_name: '',
     last_name: ''
   });
-  const [passwordMismatch, setPasswordMismatch] = useState(false); // State to track password mismatch
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +22,7 @@ function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) { // Check if passwords match
-      setPasswordMismatch(true);
+      setErrorMessage('Passwords do not match');
       return;
     }
     try {
@@ -38,6 +38,7 @@ function SignupPage() {
         history('/home');
       } else {
         console.error('Signup failed');
+        setErrorMessage('Username already exists');
       }
     } catch (error) {
       console.error('Error during signup:', error);
@@ -76,7 +77,7 @@ function SignupPage() {
             <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" onChange={handleChange} />
           </div>
           <button type="submit" className="btn btn-primary">Sign Up</button>
-          {passwordMismatch && <div className="error-message">Passwords do not match</div>}
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <div className='signup-prompt-container'>Already have an account? <Link to='/'>Log In</Link></div>
         </form>
       </main>

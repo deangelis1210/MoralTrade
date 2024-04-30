@@ -38,7 +38,42 @@ def get_companies_above_average_esg():
         app.logger.error('Error fetching above-average ESG companies: %s', str(e))
         return jsonify({'error': 'An error occurred while fetching above-average ESG companies'}), 500
 
+@app.route('/healthAndOilCompanies', methods=['GET'])
+def get_health_and_oil_companies():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c 
+                                        JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE c.sector = 'Oil & Gas Producers'
+                                        UNION
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c 
+                                        JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE c.sector = 'Healthcare';
 
+                                       '''))
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5], 'sector': row[6]} for row in result]
+            return jsonify({'message': companies})
+
+@app.route('/topSectorPerformers', methods=['GET'])
+def get_top_sectors():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance, c.sector
+                                        FROM Company c JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE es.total = (
+                                            SELECT MAX(es2.total)
+                                            FROM ESG_Score es2 JOIN Company c2 ON c2.ticker = es2.ticker
+                                            WHERE c2.sector = c.sector
+                                        )
+                                        ORDER BY c.sector;
+                                       '''))
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5], 'sector': row[6]} for row in result]
+            return jsonify({'message': companies})
+        
 @app.route('/usersInfo', methods=['GET'])
 def get_users_info():
     with app.app_context():
@@ -60,12 +95,16 @@ def insert_users_info():
 
     with app.app_context():
         with db.engine.connect() as conn:
-            conn.execute(text(f'''
-                                INSERT INTO User(username, password, email, first_name, last_name)
-                                VALUES ('{username}', '{password}', '{email}', '{first_name}', '{last_name}')
-                               '''))
-            conn.commit()       
-            return jsonify({'message': 'User information inserted successfully'})
+            result = conn.execute(text('SELECT * FROM User WHERE username = :username'), {'username': username}).fetchone()
+            if result:
+                return jsonify({'message': 'Username already exists'}), 401
+            else:
+                conn.execute(text(f'''
+                                    INSERT INTO User(username, password, email, first_name, last_name)
+                                    VALUES ('{username}', '{password}', '{email}', '{first_name}', '{last_name}')
+                                '''))
+                conn.commit()       
+                return jsonify({'message': 'User information inserted successfully'})
 
 @app.route('/loginAttempt', methods=['GET'])
 def login_attempt():
