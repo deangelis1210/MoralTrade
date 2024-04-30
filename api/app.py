@@ -27,16 +27,20 @@ def get_all_companies():
         return jsonify({'error': 'An error occurred while fetching all companies'}), 500
 
 @app.route('/aboveAverageESGcompanies', methods=['GET'])
-def get_companies_above_average_esg():
-    try:
-        with app.app_context():
-            with db.engine.connect() as conn:
-                result = conn.execute(text('CALL get_companies_data(:data_type)'), {'data_type': 'above_average_esg'})
-                companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5]} for row in result]
-                return jsonify({'companies': companies}), 200
-    except Exception as e:
-        app.logger.error('Error fetching above-average ESG companies: %s', str(e))
-        return jsonify({'error': 'An error occurred while fetching above-average ESG companies'}), 500
+def get_companies():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text('''
+                                        SELECT c.name, c.ticker, es.total, es.environment, es.social, es.governance
+                                        FROM Company c
+                                        JOIN ESG_Score es ON c.ticker = es.ticker
+                                        WHERE es.total > (
+                                            SELECT AVG(total) FROM ESG_Score
+                                        )
+                                        ORDER BY es.total DESC, c.name
+                                       '''))
+            companies = [{'name': row[0], 'ticker': row[1], 'esg': row[2], 'environment': row[3], 'social': row[4], 'governance': row[5]} for row in result]
+            return jsonify({'message': companies})
 
 @app.route('/healthAndOilCompanies', methods=['GET'])
 def get_health_and_oil_companies():
