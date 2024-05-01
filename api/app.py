@@ -8,11 +8,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mvpfantasy:balls@34.31.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
-
 
 @app.route('/allCompanies', methods=['GET'])
 def get_all_companies():
@@ -126,6 +124,89 @@ def insert_users_info():
                                 '''))
                 conn.commit()       
                 return jsonify({'message': 'User information inserted successfully'})
+            
+@app.route('/addToPortfolio', methods=['POST'])
+def add_to_portfolio():
+    try:
+        data = request.json  # Extract JSON data from request body
+        ticker = data.get('ticker')
+        username = data.get('username')
+        first_name = data.get('first_name')
+        date = data.get('date')
+
+        with app.app_context():
+            with db.engine.connect() as conn:
+                # Check if the ticker is already in the user's portfolio
+                existing_record = conn.execute(text('''
+                    SELECT * FROM Portfolio
+                    WHERE ticker = :ticker AND username = :username
+                '''), {'ticker': ticker, 'username': username}).fetchone()
+                if existing_record:
+                    return jsonify({'message': 'Ticker already exists in the portfolio'}), 400
+
+                # Insert the record into the Portfolio table
+                conn.execute(text('''
+                    INSERT INTO Portfolio(ticker, username, first_name, date)
+                    VALUES (:ticker, :username, :first_name, :date)
+                '''), {'ticker': ticker, 'username': username, 'first_name': first_name, 'date': date})
+                conn.commit()
+                return jsonify({'message': 'Added to portfolio successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/getPortfolio', methods=['GET'])
+def get_portfolio():
+    username = request.args.get('username')
+    with app.app_context():
+        with db.engine.connect() as conn:
+            result = conn.execute(text(f'''
+                SELECT p.ticker, p.date, c.name AS name, c.sector, s.market_cap, es.environment, es.social, es.governance, es.total
+                FROM Portfolio p
+                JOIN Company c ON p.ticker = c.ticker
+                JOIN Stock s ON c.ticker = s.ticker
+                JOIN ESG_Score es ON c.ticker = es.ticker
+                WHERE p.username = '{username}'
+            '''))
+            if result:
+                portfolio = [{'ticker': row[0], 
+                              'date': row[1],
+                              'name': row[2],
+                              'sector': row[3],
+                              'market_cap': row[4],
+                              'environment': row[5],
+                              'social': row[6],
+                              'governance': row[7],
+                              'total_esg': row[8]} for row in result]
+                print(portfolio)
+                return jsonify({'portfolio': portfolio}), 200
+            else:
+                return jsonify({'message': 'No portfolio found'}), 404
+            
+@app.route('/deleteFromPortfolio', methods=['DELETE'])
+def delete_company_from_portfolio():
+    username = request.args.get('username')
+    ticker = request.args.get('ticker')
+
+    try:
+        with app.app_context():
+            with db.engine.connect() as conn:
+                # Check if the record exists in the portfolio
+                existing_record = conn.execute(text('''
+                    SELECT * FROM Portfolio
+                    WHERE ticker = :ticker AND username = :username
+                '''), {'ticker': ticker, 'username': username}).fetchone()
+                if not existing_record:
+                    return jsonify({'message': 'Company does not exist in the portfolio'}), 404
+
+                # Delete the record from the Portfolio table
+                conn.execute(text('''
+                    DELETE FROM Portfolio
+                    WHERE ticker = :ticker AND username = :username
+                '''), {'ticker': ticker, 'username': username})
+                conn.commit()
+                return jsonify({'message': 'Company deleted from portfolio successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/loginAttempt', methods=['GET'])
 def login_attempt():
@@ -140,9 +221,6 @@ def login_attempt():
                 return jsonify(user_data)
             else:
                 return jsonify({'message': 'Invalid username or password'}), 401
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

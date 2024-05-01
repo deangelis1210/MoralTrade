@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
-import { useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { Navbar, Container, Nav, Card, Alert, Form, Button } from 'react-bootstrap';
+import { NavLink, useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Navbar, Container, Nav, Card, Alert, Form, Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faSignOutAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function IndexPage() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ function IndexPage() {
   const [sectionTitle, setSectionTitle] = useState('All Companies');
 
   useEffect(() => {
-    // Fetch all companies
     fetch('/allCompanies')
       .then(response => {
         if (!response.ok) {
@@ -37,7 +36,6 @@ function IndexPage() {
   }, []);
 
   useEffect(() => {
-    // Retrieve current user from local storage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
@@ -45,14 +43,12 @@ function IndexPage() {
   }, []);
 
   const handleSignOut = () => {
-    // Clear current user data from state and local storage
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
     navigate('/');
   };
 
   const loadAboveAverageESGCompanies = () => {
-    // Fetch above-average ESG companies
     fetch('/aboveAverageESGcompanies')
       .then(response => {
         if (!response.ok) {
@@ -72,7 +68,6 @@ function IndexPage() {
   };
 
   const loadHealthAndOilCompanies = () => {
-    // Fetch above-average ESG companies
     fetch('/healthAndOilCompanies')
       .then(response => {
         if (!response.ok) {
@@ -92,7 +87,6 @@ function IndexPage() {
   };
 
   const loadTopSectorCompanies = () => {
-    // Fetch above-average ESG companies
     fetch('/topSectorPerformers')
       .then(response => {
         if (!response.ok) {
@@ -112,7 +106,6 @@ function IndexPage() {
   };
 
   const loadSectorMarketCaps = () => {
-    // Fetch above-average ESG companies
     fetch('/sectorMarketCaps')
       .then(response => {
         if (!response.ok) {
@@ -132,7 +125,7 @@ function IndexPage() {
   };
 
   const loadAllCompanies = (event) => {
-    event.preventDefault(); // Prevent default behavior of link
+    event.preventDefault();
     setCompanies(allCompanies);
     setSectionTitle('All Companies');
   };
@@ -140,7 +133,6 @@ function IndexPage() {
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
-      // If the search term is empty, display all companies based on the current section
       switch (sectionTitle) {
         case 'Top Performing ESG':
           loadAboveAverageESGCompanies();
@@ -155,7 +147,6 @@ function IndexPage() {
           loadAllCompanies(event);
       }
     } else {
-      // Filter the currently displayed companies based on the search term
       const filteredCompanies = companies.filter(company =>
         company.ticker.toLowerCase().includes(event.target.value.toLowerCase()) ||
         company.name.toLowerCase().includes(event.target.value.toLowerCase())
@@ -163,21 +154,67 @@ function IndexPage() {
       setCompanies(filteredCompanies);
     }
   };
-  
 
-  const calculateESGColor = (score) => {
-    // Assuming score ranges from 0 to 100
-    
-    // Calculate the red, green, and blue components
-    const red = Math.floor((100 - score) * 255 / 100);
-    const green = Math.floor(score * 255 / 100);
-    const blue = 0;
+  const formatMarketCap = (value) => {
+    if (!value) return '';
 
-    // Convert the RGB values to HEX format
-    const rgbHex = "#" + ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
-    
-    return rgbHex;
+    if (value >= 1e12) {
+      return "$" + (value / 1e12).toFixed(3) + " T";
+    } else if (value >= 1e9) {
+      return "$" + (value / 1e9).toFixed(3) + " B";
+    } else if (value >= 1e6) {
+      return "$" + (value / 1e6).toFixed(3) + " M";
+    } else if (value >= 1e3) {
+      return "$" + (value / 1e3).toFixed(3) + " K";
+    } else {
+      return "$" + value.toFixed(3);
+    }
   };
+
+  const addCompanyToPortfolio = (company) => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    console.log('Current User:', currentUser);
+  
+    if (!currentUser || !currentUser.username) {
+      console.error('Current user is invalid');
+      return;
+    }
+  
+    const { ticker } = company;
+  
+    const payload = {
+      ticker: ticker,
+      username: currentUser.username,
+      first_name: currentUser.first_name,
+      date: new Date().toLocaleDateString(),
+    };
+  
+    console.log('Payload:', payload);
+  
+    fetch('/addToPortfolio', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to add company to portfolio');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert('Added to portfolio');
+      })
+      .then((data) => {
+        console.log('Company added to portfolio successfully:', data);
+      })
+      .catch((error) => {
+        console.error('Error adding company to portfolio:', error);
+      });
+  };    
 
   if (loading) {
     return (
@@ -206,10 +243,19 @@ function IndexPage() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link href="#all-companies" onClick={(event) => loadAllCompanies(event)}>All Companies</Nav.Link>
-              <Nav.Link onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Nav.Link>
-              <Nav.Link onClick={loadHealthAndOilCompanies}>Health and Oil Companies</Nav.Link>
-              <Nav.Link onClick={loadTopSectorCompanies}>Top Sector Performers</Nav.Link>
-              <Nav.Link onClick={loadSectorMarketCaps}>Top Market Caps in Sectors</Nav.Link>
+              <Nav.Link as={NavLink} to="/portfolio">Portfolio</Nav.Link>
+              <Dropdown>
+                <Dropdown.Toggle variant="light" id="dropdown-basic">
+                  Sections
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={loadAboveAverageESGCompanies}>Top Performing ESG</Dropdown.Item>
+                  <Dropdown.Item onClick={loadHealthAndOilCompanies}>Health and Oil Companies</Dropdown.Item>
+                  <Dropdown.Item onClick={loadTopSectorCompanies}>Top Sector Performers</Dropdown.Item>
+                  <Dropdown.Item onClick={loadSectorMarketCaps}>Top Market Caps in Sectors</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </Nav>
           
             <div className="user-actions d-flex align-items-center">
@@ -231,7 +277,7 @@ function IndexPage() {
                 </span>
               </Form>
               
-              <Button className = "sign-out-button" variant="outline-primary" onClick={handleSignOut}>
+              <Button className="sign-out-button" variant="outline-primary" onClick={handleSignOut}>
                 <FontAwesomeIcon icon={faSignOutAlt} />
               </Button>
             </div>
@@ -242,35 +288,45 @@ function IndexPage() {
         <main>
           <section id="all-companies" className="mb-4">
             <h2 className="section-title">{sectionTitle}</h2>
-            {/* Data Rows */}
             <div className="row row-cols-1 g-4">
               {companies.map((company, index) => (
                 <div key={index} className="col">
                   <Card className="company-card">
                     <Card.Body>
                       <div className="row">
-                        <div className="col-2">
-                          <Card.Text className="ticker">{company.ticker}</Card.Text>
-                        </div>
-                        <div className="col-4">
-                          <Card.Text className="company-name">{company.name}</Card.Text>
-                        </div>
-                        {/* Empty space */}
-                        <div className="col-6">
-                          <Card.Text className="ticker">{company.sector}</Card.Text>
-                        </div>
-                        {/* Subscores */}
-                        <div className="esg-subscore">
-                          <Card.Text style={{ color: calculateESGColor(company.environment) }}>E: {company.environment}</Card.Text>
-                        </div>
-                        <div className="esg-subscore">
-                          <Card.Text style={{ color: calculateESGColor(company.social) }}>S: {company.social}</Card.Text>
-                        </div>
-                        <div className="esg-subscore">
-                          <Card.Text style={{ color: calculateESGColor(company.governance) }}>G: {company.governance}</Card.Text>
-                        </div>
-                        <div className="esg-score">
-                          <Card.Text style={{ color: calculateESGColor(company.esg) }}>{company.esg}</Card.Text>
+                      <div className="col">
+                        <Card.Text className="ticker">{company.ticker}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="company-name">{company.name}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="sector">{company.sector}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="market-cap">{formatMarketCap(company.market_cap)}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="esg-subscore">E: {company.environment}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="esg-subscore">S: {company.social}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="esg-subscore">G: {company.governance}</Card.Text>
+                      </div>
+                      <div className="col">
+                        <Card.Text className="esg-score">{company.esg}</Card.Text>
+                      </div>
+                        <div className="col company-actions">
+                        <Button 
+                          variant="outline-primary" 
+                          size="sm" 
+                          onClick={() => addCompanyToPortfolio(company)} 
+                          className="plus-button"
+                          >
+                          <FontAwesomeIcon icon={faPlus} />
+                        </Button>
                         </div>
                       </div>
                     </Card.Body>
