@@ -136,23 +136,35 @@ def add_to_portfolio():
 
         with app.app_context():
             with db.engine.connect() as conn:
-                # Check if the ticker is already in the user's portfolio
-                existing_record = conn.execute(text('''
-                    SELECT * FROM Portfolio
-                    WHERE ticker = :ticker AND username = :username
-                '''), {'ticker': ticker, 'username': username}).fetchone()
-                if existing_record:
-                    return jsonify({'message': 'Ticker already exists in the portfolio'}), 400
+                # Begin transaction explicitly
+                trans = conn.begin()
 
-                # Insert the record into the Portfolio table
-                conn.execute(text('''
-                    INSERT INTO Portfolio(ticker, username, first_name, date)
-                    VALUES (:ticker, :username, :first_name, :date)
-                '''), {'ticker': ticker, 'username': username, 'first_name': first_name, 'date': date})
-                conn.commit()
-                return jsonify({'message': 'Added to portfolio successfully'}), 200
+                try:
+                    existing_record = conn.execute(text('''
+                        SELECT * FROM Portfolio
+                        WHERE ticker = :ticker AND username = :username
+                    '''), {'ticker': ticker, 'username': username}).fetchone()
+                    if existing_record:
+                        return jsonify({'message': 'Ticker already exists in the portfolio'}), 400
+
+                    conn.execute(text('''
+                        INSERT INTO Portfolio(ticker, username, first_name, date)
+                        VALUES (:ticker, :username, :first_name, :date)
+                    '''), {'ticker': ticker, 'username': username, 'first_name': first_name, 'date': date})
+                    
+                    # Commit transaction
+                    trans.commit()
+                    
+                    return jsonify({'message': 'Added to portfolio successfully'}), 200
+                
+                except Exception as e:
+                    # Rollback transaction if an exception occurs
+                    trans.rollback()
+                    return jsonify({'error': str(e)}), 500
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/getPortfolio', methods=['GET'])
 def get_portfolio():
@@ -190,23 +202,35 @@ def delete_company_from_portfolio():
     try:
         with app.app_context():
             with db.engine.connect() as conn:
-                # Check if the record exists in the portfolio
-                existing_record = conn.execute(text('''
-                    SELECT * FROM Portfolio
-                    WHERE ticker = :ticker AND username = :username
-                '''), {'ticker': ticker, 'username': username}).fetchone()
-                if not existing_record:
-                    return jsonify({'message': 'Company does not exist in the portfolio'}), 404
+                # Begin transaction explicitly
+                trans = conn.begin()
 
-                # Delete the record from the Portfolio table
-                conn.execute(text('''
-                    DELETE FROM Portfolio
-                    WHERE ticker = :ticker AND username = :username
-                '''), {'ticker': ticker, 'username': username})
-                conn.commit()
-                return jsonify({'message': 'Company deleted from portfolio successfully'}), 200
+                try:
+                    existing_record = conn.execute(text('''
+                        SELECT * FROM Portfolio
+                        WHERE ticker = :ticker AND username = :username
+                    '''), {'ticker': ticker, 'username': username}).fetchone()
+                    if not existing_record:
+                        return jsonify({'message': 'Company does not exist in the portfolio'}), 404
+
+                    conn.execute(text('''
+                        DELETE FROM Portfolio
+                        WHERE ticker = :ticker AND username = :username
+                    '''), {'ticker': ticker, 'username': username})
+                    
+                    # Commit transaction
+                    trans.commit()
+                    
+                    return jsonify({'message': 'Company deleted from portfolio successfully'}), 200
+                
+                except Exception as e:
+                    # Rollback transaction if an exception occurs
+                    trans.rollback()
+                    return jsonify({'error': str(e)}), 500
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/loginAttempt', methods=['GET'])
 def login_attempt():
