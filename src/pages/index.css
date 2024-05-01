@@ -1,12 +1,10 @@
-/* index.css */
-
 /* Import Bootstrap */
 @import "~bootstrap/dist/css/bootstrap.min.css";
 
 /* Colors */
 :root {
   --primary-color: #6C5CE7;
-  --success-color: #27AE60; /* Success green color */
+  --success-color: #27AE60;
   --gray-light: #F5F6FA;
   --gray-medium: #D1D8E0;
   --gray-dark: #4B4E6D;
@@ -74,55 +72,57 @@ main {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Company Card */
 .company-card {
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   margin-bottom: -17px;
   cursor: pointer;
+  height: 70px;
+  display: flex;
+  justify-content: center;
 }
 
 /* Apply hover effect */
 .company-card:hover {
-  transition: transform 0.2s ease-in-out; /* Adjust transition property */
-  transform: translateY(-5px); /* Move the card slightly upwards on hover */
+  transition: transform 0.2s ease-in-out;
+  transform: translateY(-5px);
 }
 
 /* Apply reverse hover effect */
 .company-card:not(:hover) {
-  transition: transform 0.2s ease-in-out; /* Adjust transition property */
-  transform: translateY(0); /* Move the card downwards when not hovered */
+  transition: transform 0.2s ease-in-out;
+  transform: translateY(0);
 }
 
 /* Grid Layout for Company Card Content */
 .company-card .row {
   display: grid;
-  grid-template-columns: 110px 300px 385px repeat(3, 100px) 150px;
-  align-items: center; /* Center align content vertically */
-  position: relative; /* Add this line */
+  grid-template-columns: 100px 250px 225px 120px 100px 100px 100px 100px 100px;
+  align-items: center;
+  position: relative;
 }
 
 /* Add grey line before the second column */
 .company-card .row::before {
   content: '';
   position: absolute;
-  top: 15%; /* Adjust this value to change the starting point of the line */
-  bottom: 15%; /* Adjust this value to change the ending point of the line */
-  left: 90px; /* Adjust this value to position the line */
+  top: 25%;
+  bottom: 25%;
+  left: 90px;
   width: 1px;
-  background-color: var(--gray-medium); /* Adjust the color as needed */
+  background-color: var(--gray-medium);
 }
 
 /* Add grey line before the ESG score in the last column */
 .company-card .row::after {
   content: '';
   position: absolute;
-  top: 15%; /* Adjust this value to change the starting point of the line */
-  bottom: 15%; /* Adjust this value to change the ending point of the line */
-  right: 60px; /* Adjust this value to position the line */
+  top: 25%;
+  bottom: 25%;
+  right: 60px;
   width: 1px;
-  background-color: var(--gray-medium); /* Adjust the color as needed */
+  background-color: var(--gray-medium);
 }
 
 .company-card .col {
@@ -132,30 +132,31 @@ main {
 /* Additional styling for Company Name */
 .company-name {
   font-size: 18px;
-  color: var(--primary-color);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ticker {
   font-size: 14px;
-  color: var(--primary-color);
   white-space: nowrap;
-  display: flex; /* Add this line */
-  align-items: center; /* Add this line */
+  display: flex;
+  align-items: center;
 }
 
 .esg-subscore {
-  font-size: 15px; /* Make the font size smaller */
-  display: flex; /* Add this line */
-  align-items: center; /* Align the text to the right */
-  margin-right: 10px; /* Add margin to the right */
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .esg-score {
-  font-size: 20px; /* Make the font size smaller */
-  display: flex; /* Add this line */
-  align-items: center; /* Align the text to the right */
-  margin-right: 10px; /* Add margin to the right */
+  color: #27AE60;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }
 
 /* Footer */
@@ -165,8 +166,8 @@ main {
 }
 
 .footer p {
-  margin: 0; /* Remove default margin */
-  line-height: 50px; /* Vertically center the text */
+  margin: 0;
+  line-height: 50px;
 }
 
 /* Loading Spinner */
@@ -204,80 +205,28 @@ main {
   display: flex;
   align-items: center;
   position: relative;
-  right: 0px; /* Position from the right of the screen */
+  right: 0px;
 }
 
 .search-bar {
-  width: 250px; /* Set the width of the search bar */
+  width: 250px;
 }
 
 .search-icon {
   position: absolute;
   right: 10px;
   color: #aaa;
+}
+
+.trash-button {
+  margin-top: 20px;
+}
+
+.plus-button {
+  margin-top: 20px;
 }
 
 .sign-out-button {
-  margin-top: 18px;
   margin-left: 10px;
-}
-
-
-/* Footer */
-.footer {
-  width: 100%;
-  height: 50px;
-}
-
-.footer p {
-  margin: 0; /* Remove default margin */
-  line-height: 50px; /* Vertically center the text */
-}
-
-/* Loading Spinner */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-}
-
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error Message */
-.error-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  color: var(--error-color);
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  right: 0px; /* Position from the right of the screen */
-}
-
-.search-bar {
-  width: 250px; /* Set the width of the search bar */
-}
-
-.search-icon {
-  position: absolute;
-  right: 10px;
-  color: #aaa;
+  margin-top: 20px;
 }
