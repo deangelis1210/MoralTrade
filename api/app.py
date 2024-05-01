@@ -81,16 +81,17 @@ def get_sector_market_caps():
     with app.app_context():
         with db.engine.connect() as conn:
             result = conn.execute(text('''
-                                        SELECT sector, AVG(max_market_cap)
+                                        SELECT name, ticker, sector, AVG(max_market_cap) AS avg_cap, total, environment, social, governance
                                         FROM (
-                                            SELECT sector, MAX(market_cap) AS max_market_cap
+                                            SELECT name, c.ticker, sector, MAX(market_cap) AS max_market_cap, es.total, es.environment, es.social, es.governance
                                             FROM Company c JOIN Stock s ON c.ticker = s.ticker
-                                            GROUP BY sector
+                                                JOIN ESG_Score es ON c.ticker = es.ticker
+                                            GROUP BY name, c.ticker, sector, es.total, es.environment, es.social, es.governance
                                         ) AS max_caps
-                                        GROUP BY sector
-                                        ORDER BY sector;
+                                        GROUP BY name, ticker, sector, total, environment, social, governance
+                                        ORDER BY sector, avg_cap DESC;
                                        '''))
-            companies = [{'sector': row[0], 'market_cap': row[1]} for row in result]
+            companies = [{'name': row[0], 'ticker': row[1], 'sector': row[2], 'market_cap': row[3], 'esg': row[4], 'environment': row[5], 'social': row[6], 'governance': row[7]} for row in result]
             return jsonify({'message': companies})
 
 @app.route('/usersInfo', methods=['GET'])
